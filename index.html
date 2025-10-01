@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وثائقي — إدارة الوثائق والإعدادات</title>
+<style>
+:root{
+  --bg:#f4f7fb; --text:#0f1724; --card:#ffffff; --primary:#0f62fe; --secondary:#0047b3; --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:"Noto Kufi Arabic",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;
+}
+.app{width:100%;max-width:960px;padding:18px;display:flex;flex-direction:column;gap:18px;}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.brand{display:flex;align-items:center;gap:12px;}
+.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:0 6px 18px rgba(15,98,254,0.18);}
+h1{font-size:20px;margin:0}
+header .user-area{display:flex;gap:8px;align-items:center}
+.btn{padding:8px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(2,6,23,0.06);}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-ghost{background:transparent;border:1px solid rgba(15,98,254,0.12);color:var(--secondary)}
+.btn-danger{background:#d93025;color:#fff}
+.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(2,6,23,0.06);}
+.center{display:flex;align-items:center;justify-content:center;}
+.layout{display:grid;grid-template-columns:1fr;gap:18px;}
+@media(min-width:900px){.layout{grid-template-columns:360px 1fr;align-items:start;}}
+.auth-card .tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:8px;border-radius:10px;border:none;background:transparent;cursor:pointer}
+.tabs button.active{background:linear-gradient(90deg,var(--primary),var(--secondary));color:#fff}
+label{display:block;margin-bottom:6px;font-weight:700}
+input[type="text"], input[type="password"], input[type="file"], select, input[type="date"], input[type="color"]{
+  width:100%;padding:10px;border-radius:10px;border:1px solid #e6eefc;background:#fbfdff;outline:none;font-size:15px;
+}
+.muted{color:var(--muted);font-size:13px;margin-top:6px}
+form{display:flex;flex-direction:column;gap:12px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.doc-card{background:linear-gradient(180deg,#fff,#fbfdff);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;border:1px solid rgba(15,98,254,0.04);}
+.doc-card h3{margin:0;font-size:15px}
+.doc-meta{font-size:13px;color:var(--muted)}
+.doc-actions{display:flex;gap:8px;margin-top:auto}
+.link{background:transparent;border:none;color:var(--primary);cursor:pointer;text-decoration:underline;padding:6px 4px;border-radius:8px}
+.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;width:calc(100% - 40px);max-width:960px;background:var(--card);border-radius:14px;padding:8px 12px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 14px 40px rgba(2,6,23,0.09);z-index:50;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:700}
+.nav-btn.active{color:var(--primary)}
+.row{display:flex;gap:8px;align-items:center}
+.hidden{display:none}
+.danger-link{background:transparent;border:none;color:#d93025;cursor:pointer}
+.file-label{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;background:#f8fbff;border:1px dashed rgba(15,98,254,0.08);cursor:pointer;}
+.file-row{display:flex;gap:8px;flex-direction:column}
+.badge{display:inline-block;padding:6px 10px;background:linear-gradient(90deg,#1fa76a,#0b8a53);Color:#fff;border-radius:999px;font-weight:700;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">و</div>
+      <div>
+        <h1 id="appTitle">وثائقي</h1>
+        <div class="small muted" id="appSubTitle">احفظ وثائقك بأمان — نسخة محلية</div>
+      </div>
+    </div>
+    <div class="user-area">
+      <div id="welcomeText" class="muted">غير مسجل</div>
+      <button id="btnOpenSignup" class="btn btn-primary">إنشاء حساب</button>
+      <button id="btnOpenLogin" class="btn btn-ghost">تسجيل دخول</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- left column -->
+    <section class="card auth-card" id="authSection">
+      <div id="authForms">
+        <div class="tabs">
+          <button id="tabSignup" class="active">إنشاء حساب</button>
+          <button id="tabLogin">تسجيل دخول</button>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm">
+          <label for="signupUser">اسم المستخدم</label>
+          <input id="signupUser" type="text" placeholder="مثال: ali88" required>
+          <label for="signupPass">كلمة المرور</label>
+          <input id="signupPass" type="password" placeholder="كلمة مرور قوية" required>
+          <label for="signupName">الاسم الكامل (اختياري)</label>
+          <input id="signupName" type="text" placeholder="أدخل اسمك للعرض">
+          <div class="row">
+            <button type="submit" class="btn btn-primary">إنشاء حساب</button>
+            <button type="button" id="toLogin" class="btn btn-ghost">لدي حساب</button>
+          </div>
+          <div id="signupMsg" class="muted small"></div>
+        </form>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="hidden">
+          <label for="loginUser">اسم المستخدم</label>
+          <input id="loginUser" type="text" placeholder="اسم المستخدم" required>
+          <label for="loginPass">كلمة المرور</label>
+          <input id="loginPass" type="password" placeholder="كلمة المرور" required>
+          <div class="row">
+            <button type="submit" class="btn btn-primary">تسجيل دخول</button>
+            <button type="button" id="toSignup" class="btn btn-ghost">إنشاء حساب</button>
+          </div>
+          <div id="loginMsg" class="muted small"></div>
+        </form>
+      </div>
+
+      <!-- profile -->
+      <div id="profilePanel" class="hidden">
+        <h3>الملف الشخصي</h3>
+        <div id="profileName" style="font-weight:800"></div>
+        <div class="muted small" id="profileUser"></div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="btnLogout" class="btn btn-ghost">تسجيل خروج</button>
+          <button id="btnDeleteAccount" class="btn btn-danger">حذف الحساب</button>
+        </div>
+      </div>
+
+      <!-- Settings inside left column -->
+      <div id="settingsPanel" class="card" style="margin-top:20px;">
+        <h3 id="settingsTitle">الإعدادات</h3>
+        <label id="themeLabel" for="themeSelect">اختر السمة:</label>
+        <select id="themeSelect">
+          <option value="light">فاتح</option>
+          <option value="dark">داكن</option>
+          <option value="custom">مخصص</option>
+        </select>
+        <div id="customColors" style="display:none;margin-top:10px;">
+          <label for="bgColor" id="bgLabel">لون الخلفية:</label>
+          <input type="color" id="bgColor" value="#f4f7fb">
+          <label for="textColor" id="textLabel">لون النص:</label>
+          <input type="color" id="textColor" value="#0f1724">
+          <label for="primaryColor" id="primaryLabel">لون رئيسي:</label>
+          <input type="color" id="primaryColor" value="#0f62fe">
+          <button id="saveCustom">حفظ الألوان المخصصة</button>
+        </div>
+        <label id="langLabel" for="langSelect">اختر اللغة:</label>
+        <select id="langSelect">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- right column: documents -->
+    <section>
+      <div class="card" id="docArea">
+        <div id="loggedOutNotice">
+          <h2 id="docTitle">أضف وثائقك — بعد تسجيل الدخول</h2>
+          <p class="muted" id="docSubTitle">يجب تسجيل الدخول أو إنشاء حساب لحفظ الوثائق لكل مستخدم على حدة.</p>
+        </div>
+        <div id="docPanel" class="hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h2>أضف وثيقة جديدة</h2>
+            <button id="btnAddDoc" class="btn btn-primary">+</button>
+          </div>
+          <div id="docForm" class="hidden card">
+            <form>
+              <label>نوع الوثيقة</label>
+              <select id="docType">
+                <option value="identity">الهوية</option>
+                <option value="license">رخصة القيادة</option>
+              </select>
+              <label>اسم الوثيقة</label>
+              <input type="text" id="docName" placeholder="مثال: الهوية الوطنية">
+              <div class="file-row">
+                <label class="file-label">صورة أمامية<input type="file" id="docFront" accept="image/*" hidden></label>
+                <label class="file-label">صورة خلفية<input type="file" id="docBack" accept="image/*" hidden></label>
+              </div>
+              <button type="submit" class="btn btn-primary">حفظ الوثيقة</button>
+            </form>
+          </div>
+          <div class="cards-grid" id="docsGrid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active">الوثائق</button>
+    <button class="nav-btn">الإعدادات</button>
+    <button class="nav-btn">الملف الشخصي</button>
+  </div>
+</div>
+
+<script>
+// ---------------------- LocalStorage Helpers ----------------------
+function saveSetting(key,val){localStorage.setItem('setting_'+key,val);}
+function loadSetting(key,def=null){return localStorage.getItem('setting_'+key)||def;}
+function saveUser(user,obj){localStorage.setItem('user_'+user,JSON.stringify(obj));}
+function loadUser(user){return JSON.parse(localStorage.getItem('user_'+user)||'null');}
+
+// ---------------------- Auth ----------------------
+let currentUser = null;
+const signupForm = document.getElementById('signupForm');
+const loginForm = document.getElementById('loginForm');
+const tabSignup = document.getElementById('tabSignup');
+const tabLogin = document.getElementById('tabLogin');
+const toLogin = document.getElementById('toLogin');
+const toSignup = document.getElementById('toSignup');
+const authSection = document.getElementById('authSection');
+const profilePanel = document.getElementById('profilePanel');
+const docPanel = document.getElementById('docPanel');
+const loggedOutNotice = document.getElementById('loggedOutNotice');
+const welcomeText = document.getElementById('welcomeText');
+const profileName = document.getElementById('profileName');
+const profileUser = document.getElementById('profileUser');
+
+function updateUI(){
+  if(currentUser){
+    profilePanel.classList.remove('hidden');
+    authForms.style.display='none';
+    docPanel.classList.remove('hidden');
+    loggedOutNotice.classList.add('hidden');
+    welcomeText.textContent = currentUser;
+    const userObj = loadUser(currentUser);
+    profileName.textContent = userObj.name||'';
+    profileUser.textContent = currentUser;
+    loadDocs();
+  } else {
+    profilePanel.classList.add('hidden');
+    authForms.style.display='block';
+    docPanel.classList.add('hidden');
+    loggedOutNotice.classList.remove('hidden');
+    welcomeText.textContent='غير مسجل';
+  }
+}
+
+tabSignup.onclick = ()=>{signupForm.classList.remove('hidden'); loginForm.classList.add('hidden'); tabSignup.classList.add('active'); tabLogin.classList.remove('active');}
+tabLogin.onclick = ()=>{signupForm.classList.add('hidden'); loginForm.classList.remove('hidden'); tabSignup.classList.remove('active'); tabLogin.classList.add('active');}
+toLogin.onclick=()=>{tabLogin.click();}
+toSignup.onclick=()=>{tabSignup.click();}
+
+signupForm.onsubmit=(e)=>{
+  e.preventDefault();
+  const user = document.getElementById('signupUser').value.trim();
+  const pass = document.getElementById('signupPass').value;
+  const name = document.getElementById('signupName').value;
+  if(loadUser(user)){alert('اسم المستخدم موجود');return;}
+  saveUser(user,{password:pass,name:name,docs:[]});
+  alert('تم إنشاء الحساب بنجاح!');
+  currentUser=user;
+  updateUI();
+};
+
+loginForm.onsubmit=(e)=>{
+  e.preventDefault();
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const uObj = loadUser(user);
+  if(!uObj || uObj.password!==pass){alert('بيانات خاطئة'); return;}
+  currentUser=user;
+  updateUI();
+};
+
+document.getElementById('btnLogout').onclick=()=>{
+  currentUser=null;
+  updateUI();
+};
+
+document.getElementById('btnDeleteAccount').onclick=()=>{
+  if(confirm('هل أنت متأكد من حذف الحساب؟')){
+    localStorage.removeItem('user_'+currentUser);
+    currentUser=null;
+    updateUI();
+  }
+};
+
+// ---------------------- Documents ----------------------
+const btnAddDoc = document.getElementById('btnAddDoc');
+const docForm = document.getElementById('docForm');
+const docsGrid = document.getElementById('docsGrid');
+
+btnAddDoc.onclick=()=>{docForm.classList.toggle('hidden');}
+
+docForm.querySelector('form').onsubmit=(e)=>{
+  e.preventDefault();
+  const type = document.getElementById('docType').value;
+  const name = document.getElementById('docName').value;
+  const front = document.getElementById('docFront').files[0];
+  const back = document.getElementById('docBack').files[0];
+  if(!name || !front){alert('أدخل الاسم واختر صورة أمامية'); return;}
+  const readerFront = new FileReader();
+  const readerBack = new FileReader();
+  readerFront.onload=()=>{
+    readerBack.onload=()=>{
+      const doc = {type,name,front:readerFront.result,back:readerBack.result||null};
+      const userObj = loadUser(currentUser);
+      userObj.docs.push(doc);
+      saveUser(currentUser,userObj);
+      docForm.querySelector('form').reset();
+      docForm.classList.add('hidden');
+      loadDocs();
+    }
+    if(back) readerBack.readAsDataURL(back);
+    else readerBack.onload();
+  }
+  readerFront.readAsDataURL(front);
+};
+
+function loadDocs(){
+  docsGrid.innerHTML='';
+  const userObj = loadUser(currentUser);
+  userObj.docs.forEach((doc,i)=>{
+    const div = document.createElement('div');
+    div.className='doc-card';
+    div.innerHTML=`
+      <h3>${doc.name} <span class="badge">${doc.type==='identity'?'هوية':'رخصة'}</span></h3>
+      <div class="doc-actions">
+        <button class="link" onclick="viewDoc(${i})">عرض</button>
+        <button class="danger-link" onclick="deleteDoc(${i})">حذف</button>
+      </div>
+    `;
+    docsGrid.appendChild(div);
+  });
+}
+
+window.viewDoc=(i)=>{
+  const doc = loadUser(currentUser).docs[i];
+  const win = window.open('');
+  win.document.write(`<h2>${doc.name}</h2><p>نوع الوثيقة: ${doc.type==='identity'?'هوية':'رخصة القيادة'}</p>
+    <img src="${doc.front}" width="300"><br>
+    ${doc.back?`<img src="${doc.back}" width="300">`:''}`);
+}
+
+window.deleteDoc=(i)=>{
+  const userObj = loadUser(currentUser);
+  userObj.docs.splice(i,1);
+  saveUser(currentUser,userObj);
+  loadDocs();
+}
+
+// ---------------------- Settings ----------------------
+const themeSelect = document.getElementById('themeSelect');
+const customColors = document.getElementById('customColors');
+const bgColor = document.getElementById('bgColor');
+const textColor = document.getElementById('textColor');
+const primaryColor = document.getElementById('primaryColor');
+const saveCustom = document.getElementById('saveCustom');
+const langSelect = document.getElementById('langSelect');
+const translations={
+  ar:{settingsTitle:'الإعدادات',themeLabel:'اختر السمة:',bgLabel:'لون الخلفية:',textLabel:'لون النص:',primaryLabel:'لون رئيسي:',saveCustom:'حفظ الألوان المخصصة',langLabel:'اختر اللغة:'},
+  en:{settingsTitle:'Settings',themeLabel:'Choose theme:',bgLabel:'Background color:',textLabel:'Text color:',primaryLabel:'Primary color:',saveCustom:'Save Custom Colors',langLabel:'Choose language:'}
+};
+
+function applyTheme(theme){
+  if(theme==='light'){
+    document.documentElement.style.setProperty('--bg','#f4f7fb');
+    document.documentElement.style.setProperty('--text','#0f1724');
+    document.documentElement.style.setProperty('--card','#ffffff');
+    document.documentElement.style.setProperty('--primary','#0f62fe');
+    customColors.style.display='none';
+  } else if(theme==='dark'){
+    document.documentElement.style.setProperty('--bg','#1f2937');
+    document.documentElement.style.setProperty('--text','#f3f4f6');
+    document.documentElement.style.setProperty('--card','#374151');
+    document.documentElement.style.setProperty('--primary','#3b82f6');
+    customColors.style.display='none';
+  } else if(theme==='custom'){
+    customColors.style.display='block';
+    document.documentElement.style.setProperty('--bg',bgColor.value);
+    document.documentElement.style.setProperty('--text',textColor.value);
+    document.documentElement.style.setProperty('--primary',primaryColor.value);
+  }
+}
+
+themeSelect.addEventListener('change',()=>{
+  const val = themeSelect.value;
+  saveSetting('theme',val);
+  applyTheme(val);
+});
+
+saveCustom.addEventListener('click',()=>{
+  applyTheme('custom');
+  saveSetting('theme','custom');
+  saveSetting('bg',bgColor.value);
+  saveSetting('text',textColor.value);
+  saveSetting('primary',primaryColor.value);
+  alert('تم حفظ الألوان المخصصة');
+});
+
+const savedTheme = loadSetting('theme','light');
+themeSelect.value = savedTheme;
+if(savedTheme==='custom'){
+  bgColor.value = loadSetting('bg','#f4f7fb');
+  textColor.value = loadSetting('text','#0f1724');
+  primaryColor.value = loadSetting('primary','#0f62fe');
+}
+applyTheme(savedTheme);
+
+function applyLanguage(lang){
+  const t = translations[lang];
+  document.getElementById('settingsTitle').textContent=t.settingsTitle;
+  document.getElementById('themeLabel').textContent=t.themeLabel;
+  document.getElementById('bgLabel').textContent=t.bgLabel;
+  document.getElementById('textLabel').textContent=t.textLabel;
+  document.getElementById('primaryLabel').textContent=t.primaryLabel;
+  document.getElementById('saveCustom').textContent=t.saveCustom;
+  document.getElementById('langLabel').textContent=t.langLabel;
+}
+langSelect.addEventListener('change',()=>{
+  const val = langSelect.value;
+  saveSetting('lang',val);
+  applyLanguage(val);
+});
+const savedLang = loadSetting('lang','ar');
+langSelect.value=savedLang;
+applyLanguage(savedLang);
+
+updateUI();
+</script>
+</body>
+</html>
